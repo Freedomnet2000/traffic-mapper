@@ -53,24 +53,26 @@ class MappingService
     public function refresh(Mapping $map): Mapping
     {
         $cacheKey = "mapping:{$map->keyword}:{$map->src}:{$map->creative}";
-
-        // Invalidate existing cache before refresh
         Cache::forget($cacheKey);
 
-        // Create new mapping version inside a transaction
-        $new = DB::transaction(function () use ($map) {
-            return Mapping::create([
-                'keyword'     => $map->keyword,
-                'src'         => $map->src,
-                'creative'    => $map->creative,
-                'version'     => $map->version + 1,
-                'refreshed_at'=> now(),
-            ]);
+        return DB::transaction(function () use ($map) {
+            $version = $map->version + 1;
+
+            while (true) {
+                try {
+                    return Mapping::create([
+                        'keyword'     => $map->keyword,
+                        'src'         => $map->src,
+                        'creative'    => $map->creative,
+                        'version'     => $version,
+                        'refreshed_at'=> now(),
+                    ]);
+                } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+                    $version++;
+                    continue;
+                }
+            }
         });
-
-        // Cache the refreshed mapping
-        Cache::put($cacheKey, $new, now()->addMinutes(60));
-
-        return $new;
     }
+
 }
