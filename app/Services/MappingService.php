@@ -6,6 +6,7 @@ use App\Models\Mapping;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 
 class MappingService
@@ -73,33 +74,28 @@ class MappingService
     public function refresh(Mapping $map): Mapping
     {
         $cacheKey = "mapping:{$map->keyword}:{$map->src}:{$map->creative}";
-        Log::channel('mapping')->debug('Refreshing mapping, invalidating cache', [
-            'cache_key' => $cacheKey,
-            'old_id'    => $map->id,
-            'old_param' => $map->our_param,
-            'old_version' => $map->version,
-        ]);
-    
         Cache::forget($cacheKey);
-    
+
         $new = DB::transaction(function () use ($map) {
-            return Mapping::create([
-                'keyword'     => $map->keyword,
-                'src'         => $map->src,
-                'creative'    => $map->creative,
-                'version'     => $map->version + 1,
-                'refreshed_at'=> now(),
-            ]);
+            $version = $map->version + 1;
+
+            while (true) {
+                try {
+                    return Mapping::create([
+                        'keyword'     => $map->keyword,
+                        'src'         => $map->src,
+                        'creative'    => $map->creative,
+                        'version'     => $version,
+                        'refreshed_at'=> now(),
+                    ]);
+                } catch (UniqueConstraintViolationException $e) {
+                    $version++;
+                    continue;
+                }
+            }
         });
-    
-        Log::channel('mapping')->debug('Created refreshed mapping', [
-            'id'          => $new->id,
-            'new_param'   => $new->our_param,
-            'new_version' => $new->version,
-        ]);
-    
+
         Cache::put($cacheKey, $new, now()->addMinutes(60));
         return $new;
     }
-
 }

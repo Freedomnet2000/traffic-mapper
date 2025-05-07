@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Mapping;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Services\MappingService;
+use Illuminate\Support\Facades\Log;
 
 class ApiController extends Controller
 {
@@ -47,20 +47,16 @@ class ApiController extends Controller
      * @param MappingService $svc
      * @return \Illuminate\Http\JsonResponse
      */
-    public function refresh(Request $req, MappingService $svc)
-    {
-        $ourParam = $req->input('our_param');
-        Log::channel('mapping')->debug('Refresh API called', ['our_param' => $ourParam]);
-
-        $map = Mapping::where('our_param', $ourParam)->firstOrFail();
-        $new = $svc->refresh($map);
-
-        Log::channel('mapping')->info('Refresh API success', [
-            'old_param' => $ourParam,
-            'new_param' => $new->our_param,
-            'new_version' => $new->version,
-        ]);
-
-        return response()->json(['new_param' => $new->our_param]);
-    }
+     public function refresh(Request $req, MappingService $svc)
+     {
+         Log::channel('mapping')->info('Refresh API called', ['our_param' => $req->our_param]);
+         $map = Mapping::where('our_param', $req->our_param)->firstOrFail();
+         $new = $svc->refresh($map);
+         Log::channel('mapping')->info('Refresh API success', [
+             'old_param' => $req->our_param,
+             'new_param' => $new->our_param,
+             'new_version' => $new->version,
+         ]);
+         return response()->json(['new_param' => $new->our_param]);
+     }
 }
