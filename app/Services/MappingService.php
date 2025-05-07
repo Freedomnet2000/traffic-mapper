@@ -4,11 +4,12 @@ namespace App\Services;
 
 use App\Models\Mapping;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class MappingService
 {
     /**
-     * Retrieve existing mapping or create a new one.
+     * Retrieve existing mapping or create a new one, with caching.
      *
      * @param string $keyword
      * @param string $src
@@ -17,37 +18,47 @@ class MappingService
      */
     public function getOrCreate(string $keyword, string $src, string $creative): Mapping
     {
-        return DB::transaction(function () use ($keyword, $src, $creative) {
-            // Try to find existing mapping with the highest version
-            $row = Mapping::where(compact('keyword', 'src', 'creative'))
-                          ->orderByDesc('version')
-                          ->first();
+        $cacheKey = "mapping:{$keyword}:{$src}:{$creative}";
 
-            if ($row) {
-                // Return the existing record
-                return $row;
-            }
+        // Attempt to get from cache or store result of closure
+        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($keyword, $src, $creative) {
+            return DB::transaction(function () use ($keyword, $src, $creative) {
+                // Try to find existing mapping with the highest version
+                $row = Mapping::where(compact('keyword', 'src', 'creative'))
+                              ->orderByDesc('version')
+                              ->first();
 
-            // Create a new mapping record;
-            return Mapping::create([
-                'keyword'  => $keyword,
-                'src'      => $src,
-                'creative' => $creative,
-                'version'  => 1, 
-            ]);
+                if ($row) {
+                    // Return the existing record
+                    return $row;
+                }
+
+                // Create a new mapping record; version defaults to 1
+                return Mapping::create([
+                    'keyword'  => $keyword,
+                    'src'      => $src,
+                    'creative' => $creative,
+                    'version'  => 1,
+                ]);
+            });
         });
     }
 
     /**
-     * Create a fresh version of an existing mapping.
+     * Create a fresh version of an existing mapping and invalidate its cache.
      *
      * @param Mapping $map
      * @return Mapping
      */
     public function refresh(Mapping $map): Mapping
     {
-        return DB::transaction(function () use ($map) {
-            // Insert a new version with version incremented by 1
+        $cacheKey = "mapping:{$map->keyword}:{$map->src}:{$map->creative}";
+
+        // Invalidate existing cache before refresh
+        Cache::forget($cacheKey);
+
+        // Create new mapping version inside a transaction
+        $new = DB::transaction(function () use ($map) {
             return Mapping::create([
                 'keyword'     => $map->keyword,
                 'src'         => $map->src,
@@ -56,5 +67,10 @@ class MappingService
                 'refreshed_at'=> now(),
             ]);
         });
+
+        // Cache the refreshed mapping
+        Cache::put($cacheKey, $new, now()->addMinutes(60));
+
+        return $new;
     }
 }
