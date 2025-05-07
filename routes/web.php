@@ -9,9 +9,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/redirect', [RedirectController::class, 'handle']);     // GET /api/redirect?keyword=...
-Route::get('/retrieve_original/{our_param}', [ApiController::class, 'retrieve']);
-Route::post('/refresh', [ApiController::class, 'refresh']);
-
 
 Route::get('/mock-affiliate', function (Request $req) {
     return response()->json([
@@ -19,3 +16,4 @@ Route::get('/mock-affiliate', function (Request $req) {
         'message'        => 'Affiliate mock OK'
     ]);
 });
+
