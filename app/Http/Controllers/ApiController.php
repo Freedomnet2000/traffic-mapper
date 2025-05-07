@@ -10,9 +10,21 @@ class ApiController extends Controller
 {
     public function retrieve(string $our_param)
     {
-        $map = Mapping::where('our_param',$our_param)->firstOrFail();
-        return response()->json($map->only('keyword','src','creative'));
+        $map = Mapping::query()
+            ->from('mappings as m')
+            ->where('m.our_param', $our_param)
+            ->whereRaw('m.version = (
+                select max(inner_m.version)
+                from mappings as inner_m
+                where inner_m.keyword  = m.keyword
+                  and inner_m.src      = m.src
+                  and inner_m.creative = m.creative
+            )')
+            ->firstOrFail();
+    
+        return response()->json($map->only('keyword', 'src', 'creative'));
     }
+    
     
     public function refresh(Request $req, MappingService $svc)
     {
