@@ -20,7 +20,7 @@ class RetrieveOriginalTest extends TestCase
         ]);
 
         // Act
-        $response = $this->get("/retrieve_original/{$map->our_param}");
+        $response = $this->get("/api/retrieve_original/{$map->our_param}");
 
         // Assert
         $response->assertOk()
@@ -36,7 +36,7 @@ class RetrieveOriginalTest extends TestCase
         // Arrange – false
 
         // Act
-        $response = $this->get('/retrieve_original/doesNotExist123');
+        $response = $this->get('/api/retrieve_original/doesNotExist123');
 
         // Assert
         $response->assertNotFound();   // 404
