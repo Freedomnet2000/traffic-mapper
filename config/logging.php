@@ -127,6 +127,13 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'mapping' => [
+            'driver'             => 'single',
+            'path'               => storage_path('logs/mapping.log'),
+            'level'              => env('MAPPING_LOG_LEVEL', 'info'),
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

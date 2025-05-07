@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Mapping;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+
 
 class MappingService
 {
@@ -21,28 +23,46 @@ class MappingService
         $cacheKey = "mapping:{$keyword}:{$src}:{$creative}";
 
         // Attempt to get from cache or store result of closure
-        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($keyword, $src, $creative) {
+        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($keyword, $src, $creative, $cacheKey) {
+            Log::channel('mapping')->debug('Cache miss, querying DB', [
+                'cache_key' => $cacheKey,
+                'keyword'   => $keyword,
+                'src'       => $src,
+                'creative'  => $creative,
+            ]);
+
             return DB::transaction(function () use ($keyword, $src, $creative) {
-                // Try to find existing mapping with the highest version
-                $row = Mapping::where(compact('keyword', 'src', 'creative'))
-                              ->orderByDesc('version')
-                              ->first();
+                $row = Mapping::where(compact('keyword','src','creative'))
+                            ->orderByDesc('version')
+                            ->first();
 
                 if ($row) {
-                    // Return the existing record
+                    Log::channel('mapping')->debug('Found existing mapping', [
+                        'id'        => $row->id,
+                        'our_param' => $row->our_param,
+                        'version'   => $row->version,
+                    ]);
                     return $row;
                 }
 
-                // Create a new mapping record; version defaults to 1
-                return Mapping::create([
+                $new = Mapping::create([
                     'keyword'  => $keyword,
                     'src'      => $src,
                     'creative' => $creative,
                     'version'  => 1,
                 ]);
+
+                Log::channel('mapping')->debug('Created new mapping', [
+                    'id'        => $new->id,
+                    'our_param' => $new->our_param,
+                    'version'   => $new->version,
+                ]);
+
+                return $new;
             });
         });
     }
+
 
     /**
      * Create a fresh version of an existing mapping and invalidate its cache.
@@ -53,26 +73,33 @@ class MappingService
     public function refresh(Mapping $map): Mapping
     {
         $cacheKey = "mapping:{$map->keyword}:{$map->src}:{$map->creative}";
+        Log::channel('mapping')->debug('Refreshing mapping, invalidating cache', [
+            'cache_key' => $cacheKey,
+            'old_id'    => $map->id,
+            'old_param' => $map->our_param,
+            'old_version' => $map->version,
+        ]);
+    
         Cache::forget($cacheKey);
-
-        return DB::transaction(function () use ($map) {
-            $version = $map->version + 1;
-
-            while (true) {
-                try {
-                    return Mapping::create([
-                        'keyword'     => $map->keyword,
-                        'src'         => $map->src,
-                        'creative'    => $map->creative,
-                        'version'     => $version,
-                        'refreshed_at'=> now(),
-                    ]);
-                } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
-                    $version++;
-                    continue;
-                }
-            }
+    
+        $new = DB::transaction(function () use ($map) {
+            return Mapping::create([
+                'keyword'     => $map->keyword,
+                'src'         => $map->src,
+                'creative'    => $map->creative,
+                'version'     => $map->version + 1,
+                'refreshed_at'=> now(),
+            ]);
         });
+    
+        Log::channel('mapping')->debug('Created refreshed mapping', [
+            'id'          => $new->id,
+            'new_param'   => $new->our_param,
+            'new_version' => $new->version,
+        ]);
+    
+        Cache::put($cacheKey, $new, now()->addMinutes(60));
+        return $new;
     }
 
 }
