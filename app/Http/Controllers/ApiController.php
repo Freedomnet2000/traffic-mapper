@@ -88,7 +88,17 @@ class ApiController extends Controller
             ], 422);
         }
          Log::channel('mapping')->info('Refresh API called', ['our_param' => $data['our_param']]);
-         $map = Mapping::where('our_param', $req->our_param)->firstOrFail();
+         
+         try {
+            $map = Mapping::where('our_param', $req->our_param)->firstOrFail();
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Not Found',
+                'errors'  => ['our_param' => ['The provided our_param was not found.']],
+            ], 422);
+        }
+         
          $new = $svc->refresh($map);
          Log::channel('mapping')->info('Refresh API success', [
              'old_param' => $data['our_param'],
