@@ -39,6 +39,7 @@ class RetrieveOriginalTest extends TestCase
         $response = $this->get('/api/retrieve_original/doesNotExist123');
 
         // Assert
-        $response->assertNotFound();   // 404
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors('our_param');  
     }
 }

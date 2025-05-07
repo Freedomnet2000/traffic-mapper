@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Services\MappingService;
+use Illuminate\Validation\ValidationException;
+
 
 class RedirectController extends Controller
 {
@@ -17,9 +19,22 @@ class RedirectController extends Controller
      */
     public function handle(Request $req, MappingService $svc)
     {
-        $keyword  = $req->query('keyword');
-        $src      = $req->query('src');
-        $creative = $req->query('creative');
+        try {
+            $data = $req->validate([
+                'keyword'  => 'required|string',
+                'src'      => 'required|string',
+                'creative' => 'required|string',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors'  => $e->errors(),
+            ], 422);
+        }
+        
+        $keyword  = $data['keyword'];
+        $src      = $data['src'];
+        $creative = $data['creative'];
 
         // Log incoming redirect request
         Log::channel('mapping')->info('Redirect request received', [

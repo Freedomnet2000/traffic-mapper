@@ -6,4 +6,4 @@ use App\Http\Controllers\ApiController;
 
 
 Route::post('/refresh', [ApiController::class, 'refresh']);
-Route::get('/retrieve_original/{our_param}', [ApiController::class, 'retrieve']);
+Route::get('/retrieve_original/{our_param?}', [ApiController::class, 'retrieve']);
