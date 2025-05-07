@@ -17,7 +17,7 @@ class ApiController extends Controller
      */
     public function retrieve(string $our_param)
     {
-        Log::channel('mapping')->info('Retrieve API called', ['our_param' => $our_param]);
+        Log::channel('mapping')->debug('Retrieve API called', ['our_param' => $our_param]);
 
         $map = Mapping::query()
             ->from('mappings as m')
@@ -31,7 +31,7 @@ class ApiController extends Controller
             )')
             ->firstOrFail();
 
-        Log::channel('mapping')->info('Retrieve API success', [
+        Log::channel('mapping')->debug('Retrieve API success', [
             'keyword'  => $map->keyword,
             'src'      => $map->src,
             'creative' => $map->creative,
