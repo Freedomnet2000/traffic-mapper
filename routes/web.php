@@ -8,7 +8,7 @@ use App\Http\Controllers\RedirectController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/redirect', [RedirectController::class, 'handle']);     // GET /api/redirect?keyword=...
+Route::get('/redirect', [RedirectController::class, 'handle']); 
 
 Route::get('/mock-affiliate', function (Request $req) {
     return response()->json([
