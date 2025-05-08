@@ -21,9 +21,27 @@ class RedirectController extends Controller
     {
         try {
             $data = $req->validate([
-                'keyword'  => 'required|string',
-                'src'      => 'required|string',
-                'creative' => 'required|string',
+                'keyword'  => [
+                    'required',
+                    'string',
+                    'min:2',
+                    'max:255',
+                    'regex:/^[A-Za-z0-9._-]+$/'   // letters, digits, dot, underscore, hyphen
+                ],
+                'src'      => [
+                    'required',
+                    'string',
+                    'min:2',
+                    'max:255',
+                    'regex:/^[A-Za-z0-9._-]+$/'
+                ],
+                'creative' => [
+                    'required',
+                    'string',
+                    'min:2',
+                    'max:255',
+                    'regex:/^[A-Za-z0-9._-]+$/'
+                ],
             ]);
         } catch (ValidationException $e) {
             return response()->json([

@@ -27,7 +27,9 @@ class ApiController extends Controller
                 'our_param' => [
                     'required',
                     'string',
-                    'regex:/^[0-9A-Za-z]{6,25}$/',
+                    'min:2',
+                    'max:255',
+                    'regex:/^[A-Za-z0-9._-]+$/'
                 ],
             ]);
         } catch (ValidationException $e) {
@@ -79,7 +81,13 @@ class ApiController extends Controller
      {
         try {
             $data = $req->validate([
-                'our_param'  => 'required|string',
+                'our_param' => [
+                    'required',
+                    'string',
+                    'min:2',
+                    'max:255',
+                    'regex:/^[A-Za-z0-9._-]+$/'
+                ],
             ]);
         } catch (ValidationException $e) {
             return response()->json([
