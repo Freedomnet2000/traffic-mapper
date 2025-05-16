@@ -16,4 +16,6 @@ Route::get('/mock-affiliate', function (Request $req) {
         'message'        => 'Affiliate mock OK'
     ]);
 });
-
+Route::get('/admin', function () {
+    return view('admin');
+});
