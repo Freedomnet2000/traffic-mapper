@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 
-export default function Dashboard() {
+export default function Dashboard({ user }) {
     return (
         <AuthenticatedLayout
             header={
@@ -17,6 +17,13 @@ export default function Dashboard() {
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             You're logged in!
+                            <br />
+                            {/* הצגת תוכן ייחודי לאדמין */}
+                            {user && user.role === 'admin' && (
+                                <div className="mt-4 p-4 bg-blue-100 rounded">
+                                    Welcome, Admin! You have extra privileges.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
