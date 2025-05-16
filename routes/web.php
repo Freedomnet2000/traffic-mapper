@@ -5,42 +5,78 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RedirectController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+/*
+|--------------------------------------------------------------------------
+| Public Routes (no auth required)
+|--------------------------------------------------------------------------
+*/
+
+// Landing page
+Route::get('/', fn () => redirect()->route('dashboard'))->name('home');
+
+
+// Authentication for guests
+Route::middleware('guest')->group(function () {
+    // show login form
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+        ->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+
+    // show registration form
+    Route::get('/register', fn () => Inertia::render('Auth/Register'))
+        ->name('register');
+    Route::post('/register', [RegisteredUserController::class, 'store']);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard', [
+// logout
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');
+
+// traffic mapping redirect
+Route::get('/redirect', [RedirectController::class, 'handle'])
+    ->name('redirect');
+
+// mock affiliate endpoint
+Route::get('/mock-affiliate', fn (Request $req) => response()->json([
+    'received_param' => $req->query('our_param'),
+    'message'        => 'Affiliate mock OK',
+]))->name('mock-affiliate');
+
+/*
+|--------------------------------------------------------------------------
+| Protected Routes (authenticated + verified)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+    // user dashboard
+    Route::get('/dashboard', fn () => Inertia::render('Dashboard', [
         'user' => Auth::user(),
-    ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+    ]))->name('dashboard');
 
-
-Route::middleware('auth')->group(function () {
+    // profile management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-require __DIR__.'/auth.php';
-Route::get('/admin', function () {
-    return Inertia::render('AdminDashboard');
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Routes (authenticated + can:admin)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('can:admin')
+        ->prefix('admin')
+        ->name('admin.')
+        ->group(function () {
+            // admin dashboard
+            Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+            // manage users
+            Route::get('/users', [AdminController::class, 'users'])->name('users');
+        });
 });
-Route::get('/redirect', [RedirectController::class, 'handle']); 
-
-Route::get('/mock-affiliate', function (Request $req) {
-    return response()->json([
-        'received_param' => $req->query('our_param'),
-        'message'        => 'Affiliate mock OK'
-    ]);
-});
-
-// Route::view('/admin', 'admin');
