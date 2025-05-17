@@ -1,10 +1,10 @@
 <?php
 
 use Inertia\Inertia;
+use App\Models\Mapping;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Application;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RedirectController;
@@ -56,9 +56,21 @@ Route::get('/mock-affiliate', fn (Request $req) => response()->json([
 */
 Route::middleware(['auth', 'verified'])->group(function () {
     // user dashboard
-    Route::get('/dashboard', fn () => Inertia::render('Dashboard', [
-        'user' => Auth::user(),
-    ]))->name('dashboard');
+ Route::get('/dashboard', function () {
+        $user = Auth::user();
+
+        return Inertia::render('Dashboard', [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role->value,
+            ],
+            'mappings' => $user->role->value === 'admin'
+                ? Mapping::orderBy('created_at', 'desc')->paginate(20)->toArray()
+                : null,
+        ]);
+    })->name('dashboard');
 
     // profile management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

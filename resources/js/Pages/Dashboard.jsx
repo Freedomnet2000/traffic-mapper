@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 
-export default function Dashboard({ user }) {
+export default function Dashboard({ user, mappings = [] }) {
     return (
         <AuthenticatedLayout
             header={
@@ -18,12 +18,33 @@ export default function Dashboard({ user }) {
                         <div className="p-6 text-gray-900">
                             You're logged in!
                             <br />
-                            {/* הצגת תוכן ייחודי לאדמין */}
-                            {user && user.role === 'admin' && (
-                                <div className="mt-4 p-4 bg-blue-100 rounded">
-                                    Welcome, Admin! You have extra privileges.
-                                </div>
-                            )}
+                                {user?.role === 'admin' && mappings && (
+                                    <div className="mt-6 overflow-auto rounded shadow border">
+                                        <h3 className="text-lg font-bold mb-2">Recent Mappings</h3>
+                                        <table className="min-w-full divide-y divide-gray-200 text-sm">
+                                            <thead className="bg-gray-100">
+                                                <tr>
+                                                    <th className="px-4 py-2 text-left">Keyword</th>
+                                                    <th className="px-4 py-2 text-left">Src</th>
+                                                    <th className="px-4 py-2 text-left">Creative</th>
+                                                    <th className="px-4 py-2 text-left">Our Param</th>
+                                                    <th className="px-4 py-2 text-left">Created</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {mappings.data.map((map) => (
+                                                    <tr key={map.our_param}>
+                                                        <td className="px-4 py-2">{map.keyword}</td>
+                                                        <td className="px-4 py-2">{map.src}</td>
+                                                        <td className="px-4 py-2">{map.creative}</td>
+                                                        <td className="px-4 py-2 font-mono">{map.our_param}</td>
+                                                        <td className="px-4 py-2">{new Date(map.created_at).toLocaleString()}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                         </div>
                     </div>
                 </div>
