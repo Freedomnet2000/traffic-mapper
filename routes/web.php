@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminStatsController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
@@ -58,6 +59,7 @@ Route::get('/mock-affiliate', fn (Request $req) => response()->json([
 Route::middleware(['auth', 'verified'])->group(function () {
     // user dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/admin/stats', [AdminStatsController::class, 'index'])->name('admin.stats');
 
 
     // profile management

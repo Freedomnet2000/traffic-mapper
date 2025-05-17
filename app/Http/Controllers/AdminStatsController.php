@@ -26,7 +26,22 @@ class AdminStatsController extends Controller
                 ->orderBy('day', 'desc')
                 ->limit(7)
                 ->pluck('count', 'day')
-                ->reverse() // כדי שהימים יהיו מהישן לחדש
+                ->reverse(),
+
+            'by_day_action' => RequestLog::selectRaw('DATE(created_at) as day, action, COUNT(*) as count')
+                ->groupByRaw('DATE(created_at), action')
+                ->orderByRaw('DATE(created_at) ASC')
+                ->get()
+                ->groupBy('day')
+                ->map(function ($dayGroup) {
+                    $result = ['date' => $dayGroup->first()->day];
+                    foreach ($dayGroup as $row) {
+                        $result[$row->action] = (int) $row->count;
+                    }
+                    return $result;
+                })
+                ->values(),
+
         ];
 
         return response()->json($stats);
