@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import StatsChart from './Components/StatsChart';
+import ActionPieChart from './Components/ActionPieChart';
 import ActionChart from './Components/ActionChart';
 import { Head } from '@inertiajs/react';
 
@@ -41,6 +42,8 @@ export default function Dashboard({ user, mappings = [], stats = {} }) {
                     )}
                     {user?.role === 'admin' && <StatsChart />}
                     {user?.role === 'admin' && <ActionChart />}
+                    {user?.role === 'admin' && <ActionPieChart />}
+
 
 
                     {/* טבלת מיפויים */}
