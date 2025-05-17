@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: traffic-mapper-backend
+    env: docker
+    plan: free
+    branch: main
+    dockerfilePath: Dockerfile
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        value: https://traffic-mapper-backend.onrender.com
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: dpg-d0kd6j3uibrs739ejvog-a
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: traffic_mapper
+      - key: DB_USERNAME
+        value: traffic_mapper_user
+      - key: DB_PASSWORD
+        sync: false
