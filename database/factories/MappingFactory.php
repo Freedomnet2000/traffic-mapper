@@ -7,27 +7,17 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class MappingFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = Mapping::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array
-     */
-    public function definition()
+    public function definition(): array
     {
         return [
-            'keyword'     => $this->faker->word(),
-            'src'         => $this->faker->word(),
-            'creative'    => $this->faker->word(),
-            'our_param'   => null,
-            'version'     => 1,
-            'refreshed_at'=> null,
+            'url' => 'https://example.com/path',
+            'action' => 'retrieve_original',
+            'status_code' => 200,
+            'response_time_ms' => 123,
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }
