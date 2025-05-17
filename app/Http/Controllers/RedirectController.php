@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\LogHelper;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Services\MappingService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 
@@ -73,9 +74,8 @@ class RedirectController extends Controller
 
         $affiliate = config('app.affiliate_url', env('AFFILIATE_URL'));
         $redirectUrl = $affiliate . '?our_param=' . $map->our_param;
-        Log::channel('mapping')->info('Redirecting to affiliate URL', [
-            'url' => $redirectUrl,
-        ]);
+
+        LogHelper::fullLog('/redirect', $req, 302, ['note' => 'Redirect success']);
 
         return redirect()->away($redirectUrl, 302);
     }

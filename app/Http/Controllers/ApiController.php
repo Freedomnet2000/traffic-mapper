@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mapping;
+use App\Helpers\LogHelper;
 use Illuminate\Http\Request;
 use App\Services\MappingService;
 use Illuminate\Support\Facades\Log;
@@ -55,18 +56,18 @@ class ApiController extends Controller
                 )')
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
+            LogHelper::fullLog('/api/retrieve_original/' . $param, $request, 422, [
+                'note' => 'Retrieve failed',
+            ]);
             return response()->json([
                 'message' => 'Not Found',
                 'errors'  => ['our_param' => ['The provided our_param was not found.']],
             ], 422);
         }
 
-        Log::channel('mapping')->debug('Retrieve API success', [
-            'keyword'  => $map->keyword,
-            'src'      => $map->src,
-            'creative' => $map->creative,
+        LogHelper::fullLog('retrieve_original/' , $request, 200, [
+            'note' => 'Retrieve success',
         ]);
-
         return response()->json($map->only('keyword', 'src', 'creative'));
     }
 
@@ -101,6 +102,9 @@ class ApiController extends Controller
             $map = Mapping::where('our_param', $req->our_param)->firstOrFail();
 
         } catch (ModelNotFoundException $e) {
+            LogHelper::fullLog('/api/refresh', $req, 422, [
+                'note' => 'Refresh failed',
+            ]);
             return response()->json([
                 'message' => 'Not Found',
                 'errors'  => ['our_param' => ['The provided our_param was not found.']],
@@ -108,10 +112,10 @@ class ApiController extends Controller
         }
          
          $new = $svc->refresh($map);
-         Log::channel('mapping')->info('Refresh API success', [
-             'old_param' => $data['our_param'],
-             'new_param' => $new->our_param,
-             'new_version' => $new->version,
+
+         LogHelper::fullLog('/api/refresh', $req, 200, [
+             'note' => 'Refresh success',
+            'new_param' => $new->our_param,
          ]);
          return response()->json(['new_param' => $new->our_param]);
      }
