@@ -21,7 +21,11 @@ class LogApiRequest implements ShouldQueue
         public int $status,
         public bool $success = true,
         public ?int $user_id = null
-    ) {}
+    ) {
+        if (empty($action)) {
+            throw new \InvalidArgumentException('Action is required');
+        }
+    }
 
 
     public function handle(): void
