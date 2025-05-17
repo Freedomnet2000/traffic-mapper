@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use AdminUserSeeder;
 use Illuminate\Database\Seeder;
+use Database\Seeders\AdminUserSeeder;
 
 class DatabaseSeeder extends Seeder
 {
