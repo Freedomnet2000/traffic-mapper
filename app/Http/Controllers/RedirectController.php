@@ -45,12 +45,23 @@ class RedirectController extends Controller
                 ],
             ]);
         } catch (ValidationException $e) {
+            LogHelper::fullLog(
+                endpoint: '/redirect',
+                action: 'redirect',
+                req: $req,
+                status: 422,
+                success: false,
+                extra: [
+                    'note' => 'Validation failed',
+                    'errors' => $e->errors(),
+                ]
+            );
             return response()->json([
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
             ], 422);
         }
-        
+
         $keyword  = $data['keyword'];
         $src      = $data['src'];
         $creative = $data['creative'];
@@ -75,7 +86,16 @@ class RedirectController extends Controller
         $affiliate = config('app.affiliate_url', env('AFFILIATE_URL'));
         $redirectUrl = $affiliate . '?our_param=' . $map->our_param;
 
-        LogHelper::fullLog('/redirect', $req, 302, ['note' => 'Redirect success']);
+        LogHelper::fullLog(
+                endpoint: '/redirect',
+                action: 'redirect',
+                req: $req,
+                status: 302,
+                success: true,
+                extra: [
+                    'note' => 'Redirect success',
+                ]
+        );
 
         return redirect()->away($redirectUrl, 302);
     }

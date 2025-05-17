@@ -34,6 +34,17 @@ class ApiController extends Controller
                 ],
             ]);
         } catch (ValidationException $e) {
+            LogHelper::fullLog(
+                endpoint: '/redirect',
+                action: 'redirect',
+                req: $request,
+                status: 422,
+                success: false,
+                extra: [
+                    'note' => 'Validation failed',
+                    'errors' => $e->errors(),
+                ]
+            );
             return response()->json([
                 'message' => 'Validation failed',
                 'errors'  => $e->errors(),
@@ -56,18 +67,32 @@ class ApiController extends Controller
                 )')
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            LogHelper::fullLog('/api/retrieve_original/' . $param, $request, 422, [
-                'note' => 'Retrieve failed',
-            ]);
+            LogHelper::fullLog(
+                endpoint: '/api/retrieve_original/' . $param,
+                action: 'retrieve',
+                req: $request,
+                status: 422,
+                success: false,
+                extra: [
+                    'note' => 'Retrieve failed',
+                    'errors' => ['our_param' => ['The provided our_param was not found.']],
+                ]
+             );
             return response()->json([
                 'message' => 'Not Found',
                 'errors'  => ['our_param' => ['The provided our_param was not found.']],
             ], 422);
         }
-
-        LogHelper::fullLog('retrieve_original/' , $request, 200, [
-            'note' => 'Retrieve success',
-        ]);
+            LogHelper::fullLog(
+                endpoint: '/api/retrieve_original/' . $param,
+                action: 'retrieve',
+                req: $request,
+                status: 200,
+                success: true,
+                extra: [
+                    'note' => 'Retrieve success',
+                ]
+             );
         return response()->json($map->only('keyword', 'src', 'creative'));
     }
 
@@ -91,6 +116,17 @@ class ApiController extends Controller
                 ],
             ]);
         } catch (ValidationException $e) {
+            LogHelper::fullLog(
+                endpoint: '/api/refresh',
+                action: 'refresh',
+                req: $req,
+                status: 422,
+                success: false,
+                extra: [
+                    'note' => 'Validation failed',
+                    'errors' => $e->errors(),
+                ]
+            );
             return response()->json([
                 'message' => 'Validation failed.',
                 'errors'  => $e->errors(),
@@ -102,9 +138,17 @@ class ApiController extends Controller
             $map = Mapping::where('our_param', $req->our_param)->firstOrFail();
 
         } catch (ModelNotFoundException $e) {
-            LogHelper::fullLog('/api/refresh', $req, 422, [
-                'note' => 'Refresh failed',
-            ]);
+            LogHelper::fullLog(
+                endpoint: '/api/refresh',
+                action: 'refresh',
+                req: $req,
+                status: 422,
+                success: false,
+                extra: [
+                    'note' => 'Refresh keyword failed',
+                    'errors' => ['our_param' => ['The provided our_param was not found.']],
+                ]
+          );
             return response()->json([
                 'message' => 'Not Found',
                 'errors'  => ['our_param' => ['The provided our_param was not found.']],
@@ -113,10 +157,17 @@ class ApiController extends Controller
          
          $new = $svc->refresh($map);
 
-         LogHelper::fullLog('/api/refresh', $req, 200, [
-             'note' => 'Refresh success',
-            'new_param' => $new->our_param,
-         ]);
+        LogHelper::fullLog(
+            endpoint: '/api/refresh',
+            action: 'refresh',
+            req: $req,
+            status: 200,
+            success: true,
+            extra: [
+                'note' => 'Refresh success',
+                'new_param' => $new->our_param,
+            ]
+        );
          return response()->json(['new_param' => $new->our_param]);
      }
      
