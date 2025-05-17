@@ -60,6 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // user dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/stats', [AdminStatsController::class, 'index'])->name('admin.stats');
+    Route::get('/admin/failures', [AdminStatsController::class, 'failures'])->name('admin.failures');
 
 
     // profile management

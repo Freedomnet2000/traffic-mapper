@@ -2,9 +2,17 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import StatsChart from './Components/StatsChart';
 import ActionPieChart from './Components/ActionPieChart';
 import ActionChart from './Components/ActionChart';
+import FailureTable from './Components/FailureTable';
 import { Head } from '@inertiajs/react';
+import React, { useState } from 'react';
+import FailureModal from './Components/FailureModal';
+
+
 
 export default function Dashboard({ user, mappings = [], stats = {} }) {
+    const [showFailures, setShowFailures] = useState(false);
+    
+
     return (
         <AuthenticatedLayout
             header={
@@ -25,7 +33,10 @@ export default function Dashboard({ user, mappings = [], stats = {} }) {
                                 <div className="text-lg font-semibold">✅ Success</div>
                                 <div className="text-2xl font-bold">{stats.success || 0}</div>
                             </div>
-                            <div className="bg-red-100 p-4 rounded shadow text-center">
+                            <div
+                                onClick={() => setShowFailures(true)}
+                                className="bg-red-100 p-4 rounded shadow text-center cursor-pointer hover:bg-red-200 transition"
+                            >
                                 <div className="text-lg font-semibold">❌ Failed</div>
                                 <div className="text-2xl font-bold">{stats.failed || 0}</div>
                             </div>
@@ -40,6 +51,10 @@ export default function Dashboard({ user, mappings = [], stats = {} }) {
                             </div>
                         </div>
                     )}
+
+
+                    {showFailures && user?.role === 'admin' && <FailureTable onClose={() => setShowFailures(false)} />}
+
                     {user?.role === 'admin' && <StatsChart />}
                     {user?.role === 'admin' && <ActionChart />}
                     {user?.role === 'admin' && <ActionPieChart />}

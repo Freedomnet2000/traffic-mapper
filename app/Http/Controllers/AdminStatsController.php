@@ -46,4 +46,27 @@ class AdminStatsController extends Controller
 
         return response()->json($stats);
     }
+
+    /**
+     * Get the last 50 failed requests.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function failures()
+    {
+        $user = Auth::user();
+        if (!$user || $user->role->value !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $logs = \App\Models\RequestLog::where('success', false)
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->get([
+                'endpoint', 'action', 'ip', 'params', 'status', 'created_at'
+            ]);
+
+        return response()->json($logs);
+    }
+
 }
