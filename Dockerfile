@@ -16,11 +16,11 @@ COPY . .
 # Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Clear & cache Laravel config
+# ✅ Laravel config cache refresh (critical for APP_URL)
 RUN php artisan config:clear && php artisan config:cache
 
 # Expose port
 EXPOSE 8080
 
-# Run the server with migration + seeding
-CMD php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8080
+# ✅ Start Laravel with full bootstrap
+CMD php artisan config:clear && php artisan config:cache && php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8080
