@@ -30,10 +30,10 @@ Route::middleware('guest')->group(function () {
         ->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 
-    // show registration form
-    Route::get('/register', fn () => Inertia::render('Auth/Register'))
-        ->name('register');
-    Route::post('/register', [RegisteredUserController::class, 'store']);
+    // // show registration form
+    // Route::get('/register', fn () => Inertia::render('Auth/Register'))
+    //     ->name('register');
+    // Route::post('/register', [RegisteredUserController::class, 'store']);
 });
 
 // logout
