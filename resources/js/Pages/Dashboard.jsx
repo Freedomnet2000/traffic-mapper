@@ -68,7 +68,7 @@ export default function Dashboard({ user, mappings = [], stats = {} }) {
 
                     {user?.role === 'admin' && <StatsChart />}
                     {user?.role === 'admin' && <ActionChart />}
-                    {user?.role === 'admin' && <ActionPieChart />}
+                    {/* {user?.role === 'admin' && <ActionPieChart />} */}
 
 
 
