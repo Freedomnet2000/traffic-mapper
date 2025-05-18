@@ -12,6 +12,7 @@ class PendingController extends Controller
     {
         $logs = RequestLog::query()
             ->where('success', true)
+            ->where('action', 'redirect')
             ->where(function ($q) {
                 $q->whereNull('pingback_received')->orWhere('pingback_received', false);
             })
