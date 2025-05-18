@@ -69,7 +69,7 @@ function CollapsibleParam({ paramString }) {
                         onClick={() => setExpanded(!expanded)}
                         className="absolute top-0 right-0 text-blue-500 text-xs hover:underline bg-white/80 px-1"
                     >
-                        {expanded ? 'הסתר' : 'הצג עוד'}
+                        {expanded ? 'Hide' : 'More'}
                     </button>
                 )}
             </div>

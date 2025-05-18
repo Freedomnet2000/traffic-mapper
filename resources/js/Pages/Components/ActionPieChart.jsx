@@ -9,7 +9,7 @@ import {
     ResponsiveContainer
 } from 'recharts';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b']; // כחול, ירוק, כתום
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b'];
 
 export default function ActionPieChart() {
     const [data, setData] = useState([]);

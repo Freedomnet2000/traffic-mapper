@@ -26,7 +26,6 @@ export default function Dashboard({ user, mappings = [], stats = {} }) {
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-6">
 
-                    {/* כרטיסי סטטיסטיקות */}
                     {user?.role === 'admin' && stats && (
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div className="bg-green-100 p-4 rounded shadow text-center">
@@ -61,7 +60,6 @@ export default function Dashboard({ user, mappings = [], stats = {} }) {
 
 
 
-                    {/* טבלת מיפויים */}
                     {user?.role === 'admin' && mappings && (
                         <div className="overflow-hidden bg-white shadow sm:rounded-lg">
                             <div className="p-6 text-gray-900">

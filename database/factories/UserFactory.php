@@ -17,7 +17,7 @@ class UserFactory extends Factory
             'name' => 'Test User',
             'email' => 'test@example.com',
             'email_verified_at' => now(),
-            'password' => 'password', // Laravel מטפל ב־hashed דרך casts
+            'password' => 'password', 
             'remember_token' => Str::random(10),
             'role' => UserRole::USER,
         ];
