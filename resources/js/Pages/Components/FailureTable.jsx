@@ -29,16 +29,20 @@ export default function FailureTable({ onClose }) {
                             <th className="px-3 py-1 text-left">Action</th>
                             <th className="px-3 py-1 text-left">IP</th>
                             <th className="px-3 py-1 text-left">Status</th>
+                            <th className="px-3 py-1 text-left">Params</th>
                             <th className="px-3 py-1 text-left">Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         {logs.map((log, i) => (
-                            <tr key={i} className="border-t border-red-100">
+                            <tr key={i} className="border-t border-red-100 align-top">
                                 <td className="px-3 py-1">{log.endpoint}</td>
                                 <td className="px-3 py-1">{log.action}</td>
                                 <td className="px-3 py-1">{log.ip}</td>
                                 <td className="px-3 py-1">{log.status}</td>
+                                <td className="px-3 py-1 font-mono text-xs text-gray-700 whitespace-pre-wrap break-all bg-gray-50 rounded">
+                                    <CollapsibleParam paramString={log.params} />
+                                </td>
                                 <td className="px-3 py-1">{new Date(log.created_at).toLocaleString()}</td>
                             </tr>
                         ))}
@@ -47,4 +51,30 @@ export default function FailureTable({ onClose }) {
             </div>
         </div>
     );
+}
+
+function CollapsibleParam({ paramString }) {
+    const [expanded, setExpanded] = useState(false);
+
+    try {
+        const parsed = JSON.parse(paramString);
+        const pretty = JSON.stringify(parsed, null, 2);
+        const preview = pretty.length > 200 ? pretty.slice(0, 200) + '...' : pretty;
+
+        return (
+            <div className="relative">
+                <pre>{expanded ? pretty : preview}</pre>
+                {pretty.length > 200 && (
+                    <button
+                        onClick={() => setExpanded(!expanded)}
+                        className="absolute top-0 right-0 text-blue-500 text-xs hover:underline bg-white/80 px-1"
+                    >
+                        {expanded ? 'הסתר' : 'הצג עוד'}
+                    </button>
+                )}
+            </div>
+        );
+    } catch {
+        return <span>{paramString || '-'}</span>;
+    }
 }
