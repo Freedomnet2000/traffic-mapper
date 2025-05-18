@@ -21,7 +21,6 @@ class PingbackController extends Controller
                 req: $request,
                 status: 404,
                 success: true,
-                track_id: $trackId,
                 extra: ['note' => 'Pingback failed', 'error' => 'Missing track_id']
              );
             return response()->json(['error' => 'Missing track_id'], 422);
@@ -44,7 +43,6 @@ class PingbackController extends Controller
             req: $request,
             status: 200,
             success: true,
-            track_id: '',
             extra: ['note' => 'Pingback confirmed', 'track_id_log' => $track_id_log]
         );
 
