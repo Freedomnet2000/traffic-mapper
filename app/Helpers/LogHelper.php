@@ -11,14 +11,14 @@ use App\Jobs\LogApiRequest;
 class LogHelper
 {
     /**
-     * Logs an API request both to the database (via Job) and to the log file.
+     * Logs an API request to both the log file and the database (via Job).
      *
-     * @param string  $endpoint   The actual URL path (e.g. /api/refresh)
-     * @param string  $action     Logical action (e.g. refresh, retrieve, redirect)
-     * @param Request $req        The incoming HTTP request
-     * @param int     $status     HTTP response status code (e.g. 200, 422)
-     * @param bool    $success    Whether the action succeeded (default: true)
-     * @param array   $extra      Extra data to log (e.g. response info)
+     * @param string  $endpoint  The actual route/URI (e.g. /api/refresh)
+     * @param string  $action    Logical name of the action (e.g. refresh, retrieve)
+     * @param Request $req       The incoming HTTP request
+     * @param int     $status    HTTP response status code (e.g. 200, 422)
+     * @param bool    $success   Whether the action succeeded
+     * @param array   $extra     Any extra fields to include (optional)
      */
     public static function fullLog(
         string $endpoint,
@@ -28,20 +28,34 @@ class LogHelper
         bool $success = true,
         array $extra = []
     ): void {
-        $params = array_merge($req->all(), $extra);
         $userId = Auth::check() ? Auth::id() : null;
 
+        // Safely extract the real IP address
+        $ip = $req->header('x-forwarded-for')
+            ? trim(explode(',', $req->header('x-forwarded-for'))[0])
+            : $req->ip();
+
+        $params = array_merge($req->all(), $extra);
+
+        // Queue database logging
         Bus::dispatch(new LogApiRequest(
             endpoint: $endpoint,
             action: $action,
             method: $req->method(),
-            ip: $req->ip(),
+            ip: $ip,
             params: $params,
             status: $status,
             success: $success,
             user_id: $userId
         ));
 
-        Log::channel('mapping')->info("[$endpoint] $action API", $params);
+        // File logging
+        Log::channel('mapping')->info("[$endpoint] $action API", [
+            'ip' => $ip,
+            'user_id' => $userId,
+            'status' => $status,
+            'success' => $success,
+            'params' => $params,
+        ]);
     }
 }

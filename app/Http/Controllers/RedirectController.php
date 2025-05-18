@@ -20,7 +20,6 @@ class RedirectController extends Controller
      */
     public function handle(Request $req, MappingService $svc)
     {
-        dd(request()->headers->all());
         try {
             $data = $req->validate([
                 'keyword'  => [
