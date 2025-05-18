@@ -19,8 +19,12 @@ class DashboardController extends Controller
 
         $stats = $user->role->value === 'admin'
             ? [
-                'success' => RequestLog::where('success', true)->count(),
-                'failed'  => RequestLog::where('success', false)->count(),
+                'success' => RequestLog::where('success', true)
+                    ->where('pingback_received', true)
+                    ->count(),
+                'failed' => RequestLog::where('success', false)
+                    ->where('action', 'redirect')
+                    ->count(),
                 'pending' => RequestLog::where('success', true)
                     ->where(function ($q) {
                         $q->whereNull('pingback_received')->orWhere('pingback_received', false);
