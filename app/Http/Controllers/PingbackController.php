@@ -37,14 +37,15 @@ class PingbackController extends Controller
         $log->pingback_at = now();
         $log->save();
 
+        $track_id_log = 'track_id: ' . $log->track_id;
         LogHelper::fullLog(
             endpoint: '/api/pingback',
             action: 'pingback',
             req: $request,
             status: 200,
             success: true,
-            track_id: $trackId,
-            extra: ['note' => 'Pingback confirmed']
+            track_id: '',
+            extra: ['note' => 'Pingback confirmed', 'track_id_log' => $track_id_log]
         );
 
         return response()->json(['status' => 'ok']);
