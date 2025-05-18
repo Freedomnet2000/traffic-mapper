@@ -15,6 +15,15 @@ class PingbackController extends Controller
         $trackId = $request->input('track_id');
 
         if (!$trackId) {
+            LogHelper::fullLog(
+                endpoint: '/api/pingback',
+                action: 'pingback',
+                req: $request,
+                status: 404,
+                success: true,
+                track_id: $trackId,
+                extra: ['note' => 'Pingback failed', 'error' => 'Missing track_id']
+             );
             return response()->json(['error' => 'Missing track_id'], 422);
         }
 
@@ -23,11 +32,10 @@ class PingbackController extends Controller
         if (!$log) {
             return response()->json(['error' => 'Invalid track_id'], 404);
         }
-        // Uncomment the following lines if you want to save the pingback details
-        // $log->pingback_received = true;
-        // $log->pingback_ip = $request->ip();
-        // $log->pingback_at = now();
-        // $log->save();
+        $log->pingback_received = true;
+        $log->pingback_ip = $request->ip();
+        $log->pingback_at = now();
+        $log->save();
 
         LogHelper::fullLog(
             endpoint: '/api/pingback',

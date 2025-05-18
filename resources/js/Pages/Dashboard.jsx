@@ -5,12 +5,16 @@ import ActionChart from './Components/ActionChart';
 import FailureTable from './Components/FailureTable';
 import { Head } from '@inertiajs/react';
 import React, { useState } from 'react';
+import PendingTable from './Components/PendingTable';
+
 import FailureModal from './Components/FailureModal';
 
 
 
 export default function Dashboard({ user, mappings = [], stats = {} }) {
     const [showFailures, setShowFailures] = useState(false);
+    const [showPending, setShowPending] = useState(false);
+
     
 
     return (
@@ -39,7 +43,14 @@ export default function Dashboard({ user, mappings = [], stats = {} }) {
                                 <div className="text-lg font-semibold">❌ Failed</div>
                                 <div className="text-2xl font-bold">{stats.failed || 0}</div>
                             </div>
-                            <div className="bg-blue-100 p-4 rounded shadow text-center">
+                            <div
+                                onClick={() => setShowPending(true)}
+                                className="bg-yellow-100 p-4 rounded shadow text-center cursor-pointer hover:bg-yellow-200 transition"
+                            >
+                                <div className="text-lg font-semibold">🕓 Pending</div>
+                                <div className="text-2xl font-bold">{stats.pending || 0}</div>
+                            </div>
+                            {/* <div className="bg-blue-100 p-4 rounded shadow text-center">
                                 <div className="text-lg font-semibold">🔁 Actions</div>
                                 <div className="text-sm mt-1">
                                     {stats.by_action &&
@@ -47,12 +58,13 @@ export default function Dashboard({ user, mappings = [], stats = {} }) {
                                             <div key={action}>{action}: {count}</div>
                                         ))}
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     )}
 
 
                     {showFailures && user?.role === 'admin' && <FailureTable onClose={() => setShowFailures(false)} />}
+                    {showPending && user?.role === 'admin' && <PendingTable onClose={() => setShowPending(false)} />}
 
                     {user?.role === 'admin' && <StatsChart />}
                     {user?.role === 'admin' && <ActionChart />}

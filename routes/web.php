@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PendingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\DashboardController;
@@ -61,7 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/stats', [AdminStatsController::class, 'index'])->name('admin.stats');
     Route::get('/admin/failures', [AdminStatsController::class, 'failures'])->name('admin.failures');
-
+    Route::get('/admin/pending', [PendingController::class, 'index'])->name('admin.pending');
 
     // profile management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

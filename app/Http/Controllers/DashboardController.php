@@ -21,6 +21,10 @@ class DashboardController extends Controller
             ? [
                 'success' => RequestLog::where('success', true)->count(),
                 'failed'  => RequestLog::where('success', false)->count(),
+                'pending' => RequestLog::where('success', true)
+                    ->where(function ($q) {
+                        $q->whereNull('pingback_received')->orWhere('pingback_received', false);
+                    })->count(),
                 'by_action' => RequestLog::selectRaw('action, COUNT(*) as count')
                     ->groupBy('action')
                     ->pluck('count', 'action'),
