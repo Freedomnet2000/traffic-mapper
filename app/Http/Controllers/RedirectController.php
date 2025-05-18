@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\LogHelper;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Services\MappingService;
 use Illuminate\Support\Facades\Log;
@@ -83,8 +84,9 @@ class RedirectController extends Controller
             'version'   => $map->version,
         ]);
 
+        $trackId = (string) Str::uuid();
         $affiliate = config('app.affiliate_url', env('AFFILIATE_URL'));
-        $redirectUrl = $affiliate . '?our_param=' . $map->our_param;
+        $redirectUrl = $affiliate . '?our_param=' . $map->our_param . '&track_id=' . urlencode($trackId);
 
         LogHelper::fullLog(
                 endpoint: '/redirect',
@@ -92,6 +94,7 @@ class RedirectController extends Controller
                 req: $req,
                 status: 302,
                 success: true,
+                track_id: $trackId,
                 extra: [
                     'note' => 'Redirect success',
                 ]

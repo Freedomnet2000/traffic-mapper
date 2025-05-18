@@ -19,6 +19,7 @@ class LogHelper
      * @param int     $status    HTTP response status code (e.g. 200, 422)
      * @param bool    $success   Whether the action succeeded
      * @param array   $extra     Any extra fields to include (optional)
+     * @param string|null $track_id Optional tracking ID for the request
      */
     public static function fullLog(
         string $endpoint,
@@ -26,6 +27,7 @@ class LogHelper
         Request $req,
         int $status,
         bool $success = true,
+        ?string $track_id = null,
         array $extra = []
     ): void {
         $userId = Auth::check() ? Auth::id() : null;
@@ -46,6 +48,7 @@ class LogHelper
             params: $params,
             status: $status,
             success: $success,
+            track_id: $track_id,
             user_id: $userId
         ));
 
@@ -56,6 +59,7 @@ class LogHelper
             'status' => $status,
             'success' => $success,
             'params' => $params,
+            'track_id' => $track_id,
         ]);
     }
 }

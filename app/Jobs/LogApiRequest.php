@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,13 +21,13 @@ class LogApiRequest implements ShouldQueue
         public array $params,
         public int $status,
         public bool $success = true,
-        public ?int $user_id = null
+        public ?string $track_id = null,
+        public ?int $user_id = null,
     ) {
         if (empty($action)) {
             throw new \InvalidArgumentException('Action is required');
         }
     }
-
 
     public function handle(): void
     {
@@ -38,9 +39,9 @@ class LogApiRequest implements ShouldQueue
             'params' => json_encode($this->params),
             'status' => $this->status,
             'success' => $this->success,
+            'track_id' => $this->track_id,
             'user_id' => $this->user_id,
             'created_at' => now(),
         ]);
-
     }
 }
