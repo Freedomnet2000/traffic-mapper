@@ -14,7 +14,6 @@ class RefreshApiTest extends TestCase
     /** @test */
     public function it_handles_refresh_and_logs()
     {
-        // צור mapping קיים
         $original = Mapping::create([
             'keyword' => 'testkey',
             'src' => 'google',
