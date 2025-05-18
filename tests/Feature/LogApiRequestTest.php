@@ -48,7 +48,7 @@ class LogApiRequestTest extends TestCase
 
         (new LogApiRequest(
             endpoint: '/api/refresh',
-            action: '', // שווה ל-"missing"
+            action: '', 
             method: 'POST',
             ip: '127.0.0.1',
             params: [],
