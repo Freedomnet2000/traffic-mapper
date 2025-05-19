@@ -34,15 +34,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return response()->json([
-            'redirect_to' => route('dashboard'),
-            'url' => url('/dashboard'),
-            'app_url' => config('app.url'),
-            'secure' => app()->environment('production'),
-            'scheme_forced' => URL::to('/'),
-        ], 200);
-
-        return redirect()->intended(route('dashboard', absolute: false));
+        return Inertia::location(route('dashboard'));
     }
 
     /**
