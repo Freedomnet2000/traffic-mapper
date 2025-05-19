@@ -34,15 +34,7 @@ Unique our_param for reverse lookup
 
 Mapping model with full validation and introspection
 
-✅ Authorization and User Roles
 
-Enum-based UserRole (ADMIN, USER)
-
-Gate-based authorization (can:admin)
-
-Admin-only dashboard access
-
-Auth only, no public registration
 ---
 
 ## 📋 Prerequisites
